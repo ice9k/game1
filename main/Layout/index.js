@@ -1,8 +1,9 @@
 import React from 'react'
-import { observer, emit, useValue, useLocal } from 'startupjs'
+import { observer, emit, useValue, useLocal, useSession} from 'startupjs'
 import './index.styl'
 import { Row, Div, Layout, SmartSidebar, Menu, Button, H1 } from '@startupjs/ui'
 import { faBars } from '@fortawesome/free-solid-svg-icons'
+import LoginScreen from 'components/LoginScreen'
 import APP from '../../app.json'
 
 const { displayName } = APP
@@ -21,10 +22,11 @@ const MenuItem = observer(({ url, children }) => {
 
 export default observer(function ({ children }) {
   const [opened, $opened] = useValue(false)
-
+  const [currentUser, $currentUser] = useSession('currentUser')
+  if (!currentUser) emit('url', '/')
   function renderSidebar () {
     return pug`
-      Menu.sidebar-menu
+      Menu.sidebar
         MenuItem(url='/') App
         MenuItem(url='/about') About
     `
@@ -32,14 +34,6 @@ export default observer(function ({ children }) {
 
   return pug`
     Layout
-      SmartSidebar.sidebar(
-        path=$opened.path()
-        renderContent=renderSidebar
-      )
-        Row.menu
-          Button(color='secondaryText' icon=faBars onPress=() => $opened.set(!opened))
-          H1.logo= APP_NAME
-
-        Div.body= children
+      Div.body= children
   `
 })
